@@ -1,0 +1,53 @@
+---
+classes:
+  - '::dc_profile::net::dc_netbox'
+
+dc_netbox::admin_pass: ENC[eyaml password goes here]
+dc_netbox::db_pass: ENC[eyaml password goes here]
+dc_netbox::secretkey: ENC[eyaml password goes here]
+
+dc_netbox::backup::config:
+  "%{::fqdn}_netbox":
+    backup_content: 'netbox_backup'
+    source_dir: '/var/backups'
+    pre_command: "/opt/netbox/netbox-backup.sh 2>&1 | /usr/bin/logger -t netbox-backup -p syslog.notice"
+
+dc_netbox::firewall::firewall:
+  base:
+    '000 INPUT allow related':
+      proto: 'all'
+      ctstate:
+        - 'RELATED'
+        - 'ESTABLISHED'
+      action: 'accept'
+    '001 accept lo':
+      proto: 'all'
+      iniface: 'lo'
+      action: 'accept'
+    '002 accept all icmp':
+      proto: 'icmp'
+      action: 'accept'
+    '003 allow ssh access':
+      proto: 'tcp'
+      dport: '22'
+      action: 'accept'
+  netbox:
+    '004 allow netbox':
+      proto: 'tcp'
+      dport: [ '443', '80' ]
+      action: 'accept'
+  drop:
+    '999 deny all other input requests':
+      source: '0.0.0.0/0'
+      proto: 'all'
+      action: 'drop'
+
+postgresql::globals::version: '9.6'
+postgresql::globals::manage_package_repo: true
+postgresql::server::locale: 'en_GB.UTF-8'
+
+python::pip: latest
+python::version: system
+python::gunicorn: latest
+python::dev: present
+python::virtualenv: absent

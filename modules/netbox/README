@@ -1,0 +1,11 @@
+Module : netbox
+Author : bartosz@miklaszewski
+ ____________________________________
+
+ Puppet Netbox Deployment
+ - Installs netbox application
+ - Installs postgrase db
+ - Installs Apache and configures x509 protected endpoint
+ - Configures firewall rules
+ - Installs Submodule - Python
+ - Installs Amazon S3 DB backup
